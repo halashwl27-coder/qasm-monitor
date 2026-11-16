@@ -1,0 +1,22 @@
+name: Build APK
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - run: unzip -q QasmMonitor_v2.zip
+    - run: cp google-services.json QasmMonitor/app/google-services.json
+    - run: cp alqasm-release.jks QasmMonitor/app/alqasm-release.jks
+    - uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: 17
+    - uses: gradle/actions/setup-gradle@v4
+      with:
+        gradle-version: 8.7
+    - run: cd QasmMonitor && gradle assembleDebug --no-daemon
+    - uses: actions/upload-artifact@v4
+      with:
+        name: QasmMonitor-APK
+        path: QasmMonitor/app/build/outputs/apk/debug/app-debug.apk
